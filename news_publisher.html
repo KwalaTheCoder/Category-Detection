@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سامانه ناشر خبر</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    direction: rtl;
+    font-family: Tahoma, 'Segoe UI', sans-serif;
+    background: #f4f4f4;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 14px 2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 17px;
+    font-weight: 500;
+  }
+  .topbar span { color: #444; font-size: 13px; margin-right: auto; }
+  .container { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+  .stat-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-num { font-size: 26px; font-weight: 500; color: #1a1a1a; }
+  .stat-label { font-size: 12px; color: #888; margin-top: 4px; }
+  .card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  h3 {
+    font-size: 15px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 110px;
+    resize: vertical;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: Tahoma, sans-serif;
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    background: #fafafa;
+    color: #1a1a1a;
+    direction: rtl;
+    line-height: 1.7;
+    outline: none;
+    transition: border 0.2s;
+  }
+  textarea:focus { border-color: #888; background: #fff; }
+  select {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 14px;
+    font-family: Tahoma, sans-serif;
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    background: #fafafa;
+    color: #1a1a1a;
+    direction: rtl;
+    outline: none;
+    cursor: pointer;
+  }
+  select:focus { border-color: #888; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0; }
+  .btn-primary {
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-family: Tahoma, sans-serif;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: #333; }
+  .btn-primary:disabled { background: #aaa; cursor: not-allowed; }
+  .btn-danger {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #cc3333;
+    font-size: 18px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    line-height: 1;
+  }
+  .btn-danger:hover { background: #fff0f0; }
+  .success-msg {
+    font-size: 13px;
+    color: #2a7a2a;
+    margin-top: 10px;
+    display: none;
+    align-items: center;
+    gap: 6px;
+  }
+  .ai-hint {
+    font-size: 12px;
+    color: #666;
+    margin-top: 7px;
+    min-height: 18px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .spinner {
+    width: 13px; height: 13px;
+    border: 2px solid #ddd;
+    border-top-color: #666;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ai-label {
+    font-size: 11px;
+    background: #e8f0fe;
+    color: #1a56c4;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-right: 6px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    text-align: right;
+    padding: 10px 12px;
+    color: #888;
+    font-weight: 500;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap;
+  }
+  td {
+    padding: 11px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #1a1a1a;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .badge-سیاسی  { background: #dbeafe; color: #1e40af; }
+  .badge-ورزشی  { background: #dcfce7; color: #166534; }
+  .badge-اقتصادی{ background: #fef9c3; color: #713f12; }
+  .badge-نظامی  { background: #fee2e2; color: #991b1b; }
+  .badge-امنیتی { background: #ffedd5; color: #9a3412; }
+  .badge-اجتماعی{ background: #ede9fe; color: #5b21b6; }
+  .badge-فناوری { background: #d1fae5; color: #065f46; }
+  .badge-other  { background: #f3f4f6; color: #374151; }
+  .badge-ai {
+    font-size: 10px;
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 2px 6px;
+    border-radius: 5px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .news-text { max-width: 320px; line-height: 1.6; }
+  .date-col { color: #999; font-size: 12px; white-space: nowrap; }
+  .empty-state {
+    text-align: center;
+    padding: 2.5rem;
+    color: #aaa;
+    font-size: 14px;
+  }
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .toolbar h3 { margin-bottom: 0; }
+  .toolbar-left { display: flex; gap: 8px; align-items: center; }
+  .export-btn {
+    font-size: 12px;
+    color: #555;
+    background: transparent;
+    border: 1px solid #d0d0d0;
+    border-radius: 7px;
+    padding: 6px 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: Tahoma, sans-serif;
+  }
+  .export-btn:hover { background: #f5f5f5; }
+  .filter-select {
+    width: auto;
+    font-size: 12px;
+    padding: 6px 10px;
+    border: 1px solid #d0d0d0;
+    border-radius: 7px;
+    background: #fafafa;
+    color: #333;
+    font-family: Tahoma, sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  📰 سامانه ناشر خبر
+  <span>دسته‌بندی خودکار با هوش مصنوعی</span>
+</div>
+
+<div class="container">
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-num" id="total-count">0</div>
+      <div class="stat-label">کل اخبار</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="today-count">0</div>
+      <div class="stat-label">امروز</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="cat-count">0</div>
+      <div class="stat-label">دسته‌بندی فعال</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>➕ افزودن خبر جدید</h3>
+
+    <label>متن خبر</label>
+    <textarea id="news-text"
+      placeholder="متن خبر را بنویسید — دسته‌بندی به‌صورت خودکار پیشنهاد می‌شود..."
+      oninput="scheduleAutoClassify()">
+    </textarea>
+
+    <div class="ai-hint" id="ai-hint">
+      <div class="spinner" id="spinner"></div>
+      <span id="ai-hint-text"></span>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>دسته‌بندی <span class="ai-label">هوش مصنوعی</span></label>
+        <select id="news-cat">
+          <option value="">انتخاب یا تشخیص خودکار...</option>
+          <option value="سیاسی">سیاسی</option>
+          <option value="ورزشی">ورزشی</option>
+          <option value="اقتصادی">اقتصادی</option>
+          <option value="نظامی">نظامی</option>
+          <option value="امنیتی">امنیتی</option>
+          <option value="اجتماعی">اجتماعی</option>
+          <option value="فناوری">فناوری</option>
+        </select>
+      </div>
+      <div>
+        <label>اهمیت خبر</label>
+        <select id="news-priority">
+          <option value="عادی">عادی</option>
+          <option value="مهم">مهم</option>
+          <option value="فوری">فوری</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="submit-btn" onclick="addNews()">
+      ✓ تایید و ثبت خبر
+    </button>
+    <div class="success-msg" id="success-msg">
+      ✅ خبر با موفقیت ثبت شد
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <h3>📋 اخبار ثبت‌شده</h3>
+      <div class="toolbar-left">
+        <select class="filter-select" id="filter-cat" onchange="renderTable()">
+          <option value="">همه دسته‌ها</option>
+          <option value="سیاسی">سیاسی</option>
+          <option value="ورزشی">ورزشی</option>
+          <option value="اقتصادی">اقتصادی</option>
+          <option value="نظامی">نظامی</option>
+          <option value="امنیتی">امنیتی</option>
+          <option value="اجتماعی">اجتماعی</option>
+          <option value="فناوری">فناوری</option>
+        </select>
+        <button class="export-btn" onclick="exportCSV()">⬇ خروجی CSV</button>
+        <button class="export-btn" onclick="exportJSON()">⬇ خروجی JSON</button>
+        <button class="export-btn" onclick="clearAll()" style="color:#cc3333;">🗑 حذف همه</button>
+      </div>
+    </div>
+    <div id="table-container">
+      <div class="empty-state">هنوز خبری ثبت نشده</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API_URL = 'http://localhost:5000/classify';
+const CATS = ['سیاسی','ورزشی','اقتصادی','نظامی','امنیتی','اجتماعی','فناوری'];
+
+let news = [];
+try { news = JSON.parse(localStorage.getItem('newsData') || '[]'); } catch(e) { news = []; }
+
+let classifyTimer = null;
+let lastClassifiedText = '';
+
+function getNow() {
+  const d = new Date();
+  return d.toLocaleDateString('fa-IR') + ' ' + d.toLocaleTimeString('fa-IR', {hour:'2-digit', minute:'2-digit'});
+}
+
+function setHint(msg, loading = false) {
+  document.getElementById('ai-hint-text').textContent = msg;
+  document.getElementById('spinner').style.display = loading ? 'block' : 'none';
+}
+
+function scheduleAutoClassify() {
+  clearTimeout(classifyTimer);
+  const text = document.getElementById('news-text').value.trim();
+  if (!text || text.length < 10) { setHint(''); return; }
+  if (text === lastClassifiedText) return;
+  setHint('در حال تشخیص دسته‌بندی...', true);
+  classifyTimer = setTimeout(() => autoClassify(text), 800);
+}
+
+async function autoClassify(text) {
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    const data = await res.json();
+    const raw = (data.category || '').trim();
+    const matched = CATS.find(c => raw.includes(c));
+    if (matched) {
+      document.getElementById('news-cat').value = matched;
+      setHint('✦ دسته‌بندی پیشنهادی: ' + matched + ' — می‌توانید تغییر دهید');
+      lastClassifiedText = text;
+    } else {
+      setHint('دسته‌بندی را دستی انتخاب کنید');
+    }
+  } catch(e) {
+    setHint('❌ سرور در حال اجرا نیست — python server.py را اجرا کنید');
+  }
+}
+
+function addNews() {
+  const text = document.getElementById('news-text').value.trim();
+  const cat  = document.getElementById('news-cat').value;
+  const priority = document.getElementById('news-priority').value;
+  if (!text) { alert('لطفاً متن خبر را وارد کنید'); return; }
+  if (!cat)  { alert('لطفاً دسته‌بندی را انتخاب کنید یا صبر کنید تا تشخیص خودکار انجام شود'); return; }
+
+  const record = {
+    id: Date.now(),
+    text,
+    cat,
+    priority,
+    date: getNow(),
+    aiTagged: lastClassifiedText === text
+  };
+  news.unshift(record);
+  save();
+
+  document.getElementById('news-text').value = '';
+  document.getElementById('news-cat').value = '';
+  document.getElementById('news-priority').value = 'عادی';
+  lastClassifiedText = '';
+  setHint('');
+
+  const msg = document.getElementById('success-msg');
+  msg.style.display = 'flex';
+  setTimeout(() => msg.style.display = 'none', 2500);
+
+  renderTable();
+  updateStats();
+}
+
+function deleteNews(id) {
+  if (!confirm('این خبر حذف شود؟')) return;
+  news = news.filter(n => n.id !== id);
+  save();
+  renderTable();
+  updateStats();
+}
+
+function clearAll() {
+  if (!confirm('تمام اخبار حذف شوند؟')) return;
+  news = [];
+  save();
+  renderTable();
+  updateStats();
+}
+
+function save() {
+  try { localStorage.setItem('newsData', JSON.stringify(news)); } catch(e) {}
+}
+
+function renderTable() {
+  const filter = document.getElementById('filter-cat').value;
+  const list = filter ? news.filter(n => n.cat === filter) : news;
+  const c = document.getElementById('table-container');
+  if (!list.length) {
+    c.innerHTML = '<div class="empty-state">خبری یافت نشد</div>';
+    return;
+  }
+  const rows = list.map(n => {
+    const cls = 'badge-' + (CATS.includes(n.cat) ? n.cat : 'other');
+    return `<tr>
+      <td class="news-text">${escHtml(n.text)}</td>
+      <td>
+        <span class="badge ${cls}">${n.cat}</span>
+        ${n.aiTagged ? '<span class="badge-ai">AI</span>' : ''}
+      </td>
+      <td>${n.priority}</td>
+      <td class="date-col">${n.date}</td>
+      <td><button class="btn-danger" onclick="deleteNews(${n.id})" title="حذف">✕</button></td>
+    </tr>`;
+  }).join('');
+  c.innerHTML = `<table>
+    <thead><tr>
+      <th>متن خبر</th><th>دسته‌بندی</th><th>اهمیت</th><th>تاریخ</th><th></th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function updateStats() {
+  document.getElementById('total-count').textContent = news.length;
+  const today = new Date().toLocaleDateString('fa-IR');
+  document.getElementById('today-count').textContent = news.filter(n => n.date.startsWith(today)).length;
+  document.getElementById('cat-count').textContent = new Set(news.map(n => n.cat)).size;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function exportCSV() {
+  if (!news.length) { alert('خبری برای خروجی وجود ندارد'); return; }
+  const header = 'متن خبر,دسته‌بندی,اهمیت,تاریخ,تشخیص_AI\n';
+  const rows = news.map(n =>
+    `"${n.text.replace(/"/g,'""')}","${n.cat}","${n.priority}","${n.date}","${n.aiTagged ? 'بله' : 'خیر'}"`
+  ).join('\n');
+  download('\uFEFF' + header + rows, 'news_dataset.csv', 'text/csv;charset=utf-8;');
+}
+
+function exportJSON() {
+  if (!news.length) { alert('خبری برای خروجی وجود ندارد'); return; }
+  download(JSON.stringify(news, null, 2), 'news_dataset.json', 'application/json');
+}
+
+function download(content, filename, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type}));
+  a.download = filename;
+  a.click();
+}
+
+renderTable();
+updateStats();
+</script>
+</body>
+</html>
