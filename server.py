@@ -1,12 +1,13 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import google.generativeai as genai
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-genai.configure(api_key="API-Key")
-model = genai.GenerativeModel('model')
+genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+model = genai.GenerativeModel(os.getenv("GEMINI_MODEL", "gemini-1.5-flash"))
 
 @app.route('/')
 def index():
